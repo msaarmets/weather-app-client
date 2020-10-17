@@ -1,0 +1,22 @@
+#alert-block {
+	margin: 12px;
+	& > div {
+		padding: 5px 10px;
+		border-radius: 10px;
+	}
+
+	.error {
+		color: #721c24;
+		background-color: #f8d7da;
+	}
+
+	.confirmation {
+		color: #155724;
+		background-color: #d4edda;
+	}
+
+	.warning {
+		color: #856404;
+		background-color: #fff3cd;
+	}
+}

@@ -1,25 +1,34 @@
-import React from "react";
-import logo from "./logo.svg";
+import React, { useState } from "react";
+import { ApolloProvider } from "@apollo/client";
+import client from "./graphql/graphql-client";
+import CitiesList from "./components/city-selector/CitySelector";
+import ErrorHandler from "./components/errorHandler/ErrorHandler";
+import { GraphQLError } from "graphql";
+import _ from "lodash";
 import "./App.scss";
 
+export type IError =
+	| GraphQLError
+	| { message: string; name: string; code?: number };
+
 function App() {
+	const [errors, setErrors] = useState<IError[]>([]);
+
+	// Add new error to display
+	const addError = (err: IError) => {
+		let errorsList = _.clone(errors);
+		errorsList.push(err);
+		setErrors(errorsList);
+	};
+
 	return (
-		<div className="App">
-			<header className="App-header">
-				<img src={logo} className="App-logo" alt="logo" />
-				<p>
-					Edit <code>src/App.tsx</code> and save to reload.
-				</p>
-				<a
-					className="App-link"
-					href="https://reactjs.org"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					Learn React
-				</a>
-			</header>
-		</div>
+		<ApolloProvider client={client(addError)}>
+			<ErrorHandler errors={errors}>
+				<div className="App">
+					<CitiesList />
+				</div>
+			</ErrorHandler>
+		</ApolloProvider>
 	);
 }
 

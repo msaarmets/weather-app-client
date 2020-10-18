@@ -4,12 +4,21 @@ import { IError } from "../../App";
 
 interface Props {
 	errors: IError[];
+	confirmations: string[];
+	removeError?: (i: number) => void;
+	removeConfirmation?: (i: number) => void;
 }
 const ErrorHandler: React.FunctionComponent<Props> = props => {
-	// console.log("errors:", props.errors);
 	return (
 		<React.Fragment>
-			{props.errors.length > 0 && <Alert errors={props.errors} />}
+			{
+				<Alert
+					errors={props.errors}
+					confirmations={props.confirmations}
+					removeError={props.removeError}
+					removeConfirmation={props.removeConfirmation}
+				/>
+			}
 			{props.children}
 		</React.Fragment>
 	);

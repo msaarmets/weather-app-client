@@ -1,6 +1,7 @@
 import { ApolloClient, InMemoryCache, from, HttpLink } from '@apollo/client';
 import { onError } from "@apollo/client/link/error";
 import { IError } from "../App";
+import config from "../config";
 
 
 type addError = (err: IError) => void;
@@ -23,7 +24,7 @@ const errorLink = (addError:addError) => {
 });
 }
 
-const httpLink = new HttpLink({ uri: 'http://localhost:4000' });
+const httpLink = new HttpLink({ uri: config.API_URL });
 
 const link = (addError:addError) => from([errorLink(addError), httpLink]);
 

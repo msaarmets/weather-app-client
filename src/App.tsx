@@ -6,6 +6,7 @@ import ErrorHandler from "./components/errorHandler/ErrorHandler";
 import { GraphQLError } from "graphql";
 import _ from "lodash";
 import "./App.scss";
+import Alert from "./components/alert/Alert";
 
 export type IError =
 	| GraphQLError
@@ -13,6 +14,7 @@ export type IError =
 
 function App() {
 	const [errors, setErrors] = useState<IError[]>([]);
+	const [confirmations, setConfirmations] = useState<string[]>([]);
 
 	// Add new error to display
 	const addError = (err: IError) => {
@@ -21,11 +23,35 @@ function App() {
 		setErrors(errorsList);
 	};
 
+	const removeError = (i: number) => {
+		let errorsList = _.clone(errors);
+		errorsList.splice(i, 1);
+		setErrors(errorsList);
+	};
+
+	// Add new confirmation to display
+	const addConfirmation = (text: string) => {
+		let list = _.clone(confirmations);
+		list.push(text);
+		setConfirmations(list);
+	};
+
+	const removeConfirmation = (i: number) => {
+		let list = _.clone(confirmations);
+		list.splice(i, 1);
+		setConfirmations(list);
+	};
+
 	return (
 		<ApolloProvider client={client(addError)}>
-			<ErrorHandler errors={errors}>
+			<ErrorHandler
+				errors={errors}
+				confirmations={confirmations}
+				removeError={removeError}
+				removeConfirmation={removeConfirmation}
+			>
 				<div className="App">
-					<CitiesList />
+					<CitiesList addConfirmation={addConfirmation} />
 				</div>
 			</ErrorHandler>
 		</ApolloProvider>

@@ -9,8 +9,8 @@ export interface City {
 
 export interface Country {
 	short: string;
-		long: string;
-		Cities: [City];
+	long: string;
+	Cities: [City];
 }
 
 export interface CountriesQueryResponse {
@@ -25,4 +25,12 @@ export interface CityQueryResponse {
 
 export interface AddCityResponse {
 	AddCity: City
+}
+
+export interface SavedCitiesQueryResponse {
+	Cities: [City]
+}
+
+export interface RemoveCityResponse {
+	RemoveCity: boolean;
 }

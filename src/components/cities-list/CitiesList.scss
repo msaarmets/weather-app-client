@@ -1,0 +1,38 @@
+@import "../../colors.scss";
+
+#no-data {
+	margin: 4rem 0;
+	p {
+		font-style: italic;
+		color: gray;
+	}
+}
+
+#results-table {
+	padding: 2rem;
+	table {
+		border-collapse: collapse;
+		width: 100%;
+		margin-top: 2rem;
+		thead {
+			background-color: yellowgreen;
+		}
+		td,
+		th {
+			text-align: left;
+			padding: 8px;
+		}
+		tr:nth-child(even) {
+			background-color: #dddddd;
+		}
+		tr {
+			td {
+				.remove-city {
+					cursor: pointer;
+					font-size: 20px;
+					color: $error;
+				}
+			}
+		}
+	}
+}

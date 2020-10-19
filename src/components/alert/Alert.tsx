@@ -26,38 +26,45 @@ export default ({
 	return (
 		<div id="alert-block">
 			{confirmations && confirmations.length > 0 && removeConfirmation && (
-				<div className="confirmation">
-					<ul>
-						{confirmations.map((el, i) => (
-							<li key={i}>
-								{el} <span onClick={() => removeConfirmation(i)}>&#10006;</span>
-							</li>
-						))}
-					</ul>
-				</div>
+				<React.Fragment>
+					{confirmations.map((el, i) => (
+						<div className="confirmation">
+							<ul>
+								<li key={i}>
+									{el}{" "}
+									<span onClick={() => removeConfirmation(i)}>&#10006;</span>
+								</li>
+							</ul>
+						</div>
+					))}
+				</React.Fragment>
 			)}
 			{warnings && warnings.length > 0 && (
-				<div className="warning">
-					<ul>
-						{warnings.map((el, i) => (
-							<li key={i}>
-								{el} <span>&#10006;</span>
-							</li>
-						))}
-					</ul>
-				</div>
+				<React.Fragment>
+					{warnings.map((el, i) => (
+						<div className="warning">
+							<ul>
+								<li key={i}>
+									{el} <span>&#10006;</span>
+								</li>
+							</ul>
+						</div>
+					))}
+				</React.Fragment>
 			)}
 			{errors && errors.length > 0 && removeError && (
-				<div className="error">
-					<ul>
-						{errors.map((el, i) => (
-							<li key={i}>
-								{el.message}{" "}
-								<span onClick={() => removeError(i)}>&#10006;</span>
-							</li>
-						))}
-					</ul>
-				</div>
+				<React.Fragment>
+					{errors.map((el, i) => (
+						<div className="error">
+							<ul>
+								<li key={i}>
+									{el.message}{" "}
+									<span onClick={() => removeError(i)}>&#10006;</span>
+								</li>
+							</ul>
+						</div>
+					))}
+				</React.Fragment>
 			)}
 		</div>
 	);

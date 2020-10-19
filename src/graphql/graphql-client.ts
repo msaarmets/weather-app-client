@@ -19,7 +19,7 @@ const errorLink = (addError:addError) => {
 
   if (networkError){
     console.log("[Network error]: ", networkError);
-    addError({message: `[Network error]: ${networkError}`, name: "Network error"});
+    addError({message: `Network error: Failed to connect to server`, name: "Network error"});
   }
 });
 }

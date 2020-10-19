@@ -13,7 +13,7 @@ import Select from "react-select";
 import _ from "lodash";
 import "./CitySelector.scss";
 
-interface CitiesListProps {
+interface Props {
 	addConfirmation: (text: string) => void;
 }
 
@@ -24,12 +24,14 @@ interface SelectOptions {
 
 interface CountrySelectorProps {
 	setCountry: (country: string) => void;
+	setFetchCities: (fetch: boolean) => void;
 }
 
 interface CitySelectorProps {
 	setCity: (country: string) => void;
 	country: string;
 	city: string;
+	fetchData: boolean;
 }
 
 interface SaveButtonProps {
@@ -37,11 +39,13 @@ interface SaveButtonProps {
 	city: string;
 	setCity: (country: string) => void;
 	addConfirmation: (text: string) => void;
+	setFetchCities: (fetch: boolean) => void;
 }
 
-export default ({ addConfirmation }: CitiesListProps) => {
+export default ({ addConfirmation }: Props) => {
 	const [country, setCountry] = useState<string>("");
 	const [city, setCity] = useState<string>("");
+	const [fetchCities, setFetchCities] = useState<boolean>(false);
 
 	const updateCountry = (country: string) => {
 		setCountry(country);
@@ -51,14 +55,23 @@ export default ({ addConfirmation }: CitiesListProps) => {
 	return (
 		<div id="cities-list">
 			<div>
-				<CountrySelector setCountry={updateCountry} />
+				<CountrySelector
+					setCountry={updateCountry}
+					setFetchCities={setFetchCities}
+				/>
 				{country.length > 1 && (
 					<React.Fragment>
-						<CitySelector country={country} city={city} setCity={setCity} />
+						<CitySelector
+							country={country}
+							city={city}
+							setCity={setCity}
+							fetchData={fetchCities}
+						/>
 						<SaveButton
 							country={country}
 							city={city}
 							setCity={setCity}
+							setFetchCities={setFetchCities}
 							addConfirmation={addConfirmation}
 						/>
 					</React.Fragment>
@@ -68,11 +81,17 @@ export default ({ addConfirmation }: CitiesListProps) => {
 	);
 };
 
-const CountrySelector = ({ setCountry }: CountrySelectorProps) => {
+const CountrySelector = ({
+	setCountry,
+	setFetchCities
+}: CountrySelectorProps) => {
+	const [fetchData, setFetchData] = useState<boolean>(true);
+
 	const { loading, error, data } = useQuery<CountriesQueryResponse>(
 		GetCountriesList,
-		{ skip: false }
+		{ skip: !fetchData }
 	);
+
 	const [options, setOptions] = useState<SelectOptions[]>([]);
 	const [selected, setSelected] = useState<SelectOptions>({
 		value: "",
@@ -82,6 +101,7 @@ const CountrySelector = ({ setCountry }: CountrySelectorProps) => {
 	useEffect(() => {
 		if (!loading && !error && data) {
 			if (data && data.Countries) {
+				// Generate options object
 				const list = data.Countries.map(el => ({
 					value: el.short,
 					label: el.long
@@ -90,10 +110,12 @@ const CountrySelector = ({ setCountry }: CountrySelectorProps) => {
 				const sortedList = _.sortBy(list, ["label"]);
 				if (!_.isEqual(sortedList, options)) {
 					setOptions(sortedList);
+					// No need to fetch the data again
+					setFetchData(false);
 				}
 			}
 		}
-	}, [loading, error, data]);
+	}, [loading, error, data, options]);
 
 	if (loading) return <Loader />;
 	if (error) return null;
@@ -107,16 +129,22 @@ const CountrySelector = ({ setCountry }: CountrySelectorProps) => {
 				onChange={option => {
 					setSelected(option as SelectOptions);
 					setCountry((option as SelectOptions).value);
+					setFetchCities(true);
 				}}
 			/>
 		</div>
 	);
 };
 
-const CitySelector = ({ country, city, setCity }: CitySelectorProps) => {
+const CitySelector = ({
+	country,
+	city,
+	setCity,
+	fetchData
+}: CitySelectorProps) => {
 	const { loading, error, data } = useQuery<CityQueryResponse>(GetCityList, {
 		variables: { country },
-		skip: false
+		skip: !fetchData
 	});
 	const [options, setOptions] = useState<SelectOptions[]>([]);
 
@@ -128,12 +156,13 @@ const CitySelector = ({ country, city, setCity }: CitySelectorProps) => {
 					label: el
 				}));
 
+				// Update the cities list only if new data is received
 				if (!_.isEqual(list, options)) {
 					setOptions(list);
 				}
 			}
 		}
-	}, [loading, error, data]);
+	}, [loading, error, data, options]);
 
 	if (loading) return <Loader />;
 	if (error) return null;
@@ -156,7 +185,8 @@ const SaveButton = ({
 	country,
 	city,
 	setCity,
-	addConfirmation
+	addConfirmation,
+	setFetchCities
 }: SaveButtonProps) => {
 	const [addCity, { data, loading, error }] = useMutation<AddCityResponse>(
 		AddCityMutation,
@@ -168,6 +198,7 @@ const SaveButton = ({
 	const [id, setId] = useState<string>("");
 
 	useEffect(() => {
+		// If city or country is not yet selected disable "Save" button
 		if (!city || !country) {
 			setDisabled(true);
 		} else {
@@ -176,6 +207,7 @@ const SaveButton = ({
 	}, [city, country]);
 
 	useEffect(() => {
+		// If saving the city to the database was successful
 		if (data && data.AddCity && data.AddCity.id) {
 			if (data.AddCity.id !== id) {
 				addConfirmation(`${data.AddCity.name} saved successfully`);
@@ -183,13 +215,25 @@ const SaveButton = ({
 				setCity("");
 			}
 		}
-	}, [data, addConfirmation]);
+	}, [data, addConfirmation, id, setId, setCity]);
+
+	useEffect(() => {
+		if (error) {
+			setDisabled(true);
+		}
+	}, [error]);
 
 	if (loading) return <Loader />;
-	if (error) return null;
 
 	return (
-		<button type="button" onClick={() => addCity()} disabled={disabled}>
+		<button
+			type="button"
+			onClick={() => {
+				addCity().catch(e => console.error("Error:", e));
+				setFetchCities(false);
+			}}
+			disabled={disabled}
+		>
 			Save
 		</button>
 	);
